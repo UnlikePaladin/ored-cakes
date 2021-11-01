@@ -16,7 +16,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.event.GameEvent;
 
 import java.util.Random;
 
@@ -27,27 +26,10 @@ public class NCakeBlock extends CakeBlock {
         this.setDefaultState(this.stateManager.getDefaultState().with(BITES, 0));
     }
 
-
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        ItemStack itemStack = player.getStackInHand(hand);
-        Item item = itemStack.getItem();
-        if (itemStack.isIn(ItemTags.CANDLES) && (Integer)state.get(BITES) == 0) {
-            Block block = Block.getBlockFromItem(item);
-            if (block instanceof CandleBlock) {
-                if (!player.isCreative()) {
-                    itemStack.decrement(1);
-                }
-
-                world.playSound((PlayerEntity)null, pos, SoundEvents.BLOCK_CAKE_ADD_CANDLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                world.setBlockState(pos, CandleNCakeBlock.getCandleCakeFromCandle(block));
-                world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-                player.incrementStat(Stats.USED.getOrCreateStat(item));
-                return ActionResult.SUCCESS;
-            }
-        }
-
         if (world.isClient) {
-            if (tryEat(world, pos, state, player).isAccepted()) {
+            ItemStack itemStack = player.getStackInHand(hand);
+            if (this.tryEat(world, pos, state, player).isAccepted()) {
                 return ActionResult.SUCCESS;
             }
 
@@ -56,26 +38,24 @@ public class NCakeBlock extends CakeBlock {
             }
         }
 
-        return tryEat(world, pos, state, player);
+        return this.tryEat(world, pos, state, player);
     }
 
-    protected static ActionResult tryEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player) {
+    private ActionResult tryEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!player.canConsume(false)) {
             return ActionResult.PASS;
         } else {
             player.incrementStat(Stats.EAT_CAKE_SLICE);
             player.getHungerManager().add(2, 0.1F);
-            int i = (Integer)state.get(BITES);
-            world.emitGameEvent(player, GameEvent.EAT, pos);
-            Random rand = new Random();
             if(!world.isClient()) {
-                player.addStatusEffect(new StatusEffectInstance(StatusEffect.byRawId(rand.nextInt(31) + 1), 200, 0));
+                Random rand = new Random();
+                player.addStatusEffect(new StatusEffectInstance(StatusEffect.byRawId(rand.nextInt(31) + 1), 100, 0));
             }
+            int i = (Integer) state.get(BITES);
             if (i < 6) {
-                world.setBlockState(pos, state.with(BITES, i + 1), 3);
+                world.setBlockState(pos, (BlockState) state.with(BITES, i + 1), 3);
             } else {
                 world.removeBlock(pos, false);
-                world.emitGameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             }
 
             return ActionResult.SUCCESS;
