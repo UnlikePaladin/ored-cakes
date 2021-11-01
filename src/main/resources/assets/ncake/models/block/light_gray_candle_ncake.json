@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/template_cake_with_candle",
+  "textures": {
+    "candle": "minecraft:block/light_gray_candle",
+    "bottom": "ncake:block/ncake_bottom",
+    "side": "ncake:block/ncake_side",
+    "top": "ncake:block/ncake_top",
+    "particle": "ncake:block/ncake_side"
+  }
+}

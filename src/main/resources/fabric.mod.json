@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "ncake",
+  "version": "${version}",
+
+  "name": "Netherite Cake Mod",
+  "description": "Brings Netherite Cake to your reality.",
+  "authors": [
+    "UnlikePaladin"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/netherite-cake",
+    "sources": "https://github.com/UnlikePaladin/netherite-cake"
+  },
+
+  "license": "LGPL-3.0-only",
+  "icon": "assets/ncake/ncake_logo_square.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.unlikepaladin.ncake.NCakeMod"
+    ]
+  },
+  "mixins": [
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
