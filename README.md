@@ -1,4 +1,5 @@
 # Netherite Cake Mod
+![ModIcon](https://github.com/UnlikePaladin/netherite-cake/blob/main/src/main/resources/assets/ncake/ncake_logo.png?raw=true)
 
 ## Installation
 
