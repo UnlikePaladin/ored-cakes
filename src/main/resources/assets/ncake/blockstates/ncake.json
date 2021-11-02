@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "bites=0": {
+      "model": "ncake:block/ncake"
+    },
+    "bites=1": {
+      "model": "ncake:block/ncake_slice1"
+    },
+    "bites=2": {
+      "model": "ncake:block/ncake_slice2"
+    },
+    "bites=3": {
+      "model": "ncake:block/ncake_slice3"
+    },
+    "bites=4": {
+      "model": "ncake:block/ncake_slice4"
+    },
+    "bites=5": {
+      "model": "ncake:block/ncake_slice5"
+    },
+    "bites=6": {
+      "model": "ncake:block/ncake_slice6"
+    }
+  }
+}

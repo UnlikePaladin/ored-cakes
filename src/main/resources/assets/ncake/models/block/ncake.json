@@ -1,0 +1,9 @@
+{
+    "parent": "minecraft:block/cake",
+    "textures": {
+        "particle": "ncake:block/ncake_side",
+        "bottom": "ncake:block/ncake_bottom",
+        "top": "ncake:block/ncake_top",
+        "side": "ncake:block/ncake_side"
+    }
+}
