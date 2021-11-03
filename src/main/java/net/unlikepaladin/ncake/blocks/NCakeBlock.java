@@ -1,84 +1,69 @@
 package net.unlikepaladin.ncake.blocks;
 
 import net.minecraft.block.*;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.tag.ItemTags;
-import net.minecraft.util.ActionResult;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.event.GameEvent;
+
 
 import java.util.Random;
 
 public class NCakeBlock extends CakeBlock {
+    public static final IntegerProperty BITES = BlockStateProperties.BITES;
+    protected static final VoxelShape[] SHAPE_BY_BITE = new VoxelShape[]{Block.box(1.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(3.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(5.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(7.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(9.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(11.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(13.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D)};
 
-    public NCakeBlock(Settings settings) {
-        super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(BITES, 0));
+    public NCakeBlock(AbstractBlock.Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(BITES, Integer.valueOf(0)));
     }
 
 
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        ItemStack itemStack = player.getStackInHand(hand);
-        Item item = itemStack.getItem();
-        if (itemStack.isIn(ItemTags.CANDLES) && (Integer)state.get(BITES) == 0) {
-            Block block = Block.getBlockFromItem(item);
-            if (block instanceof CandleBlock) {
-                if (!player.isCreative()) {
-                    itemStack.decrement(1);
-                }
 
-                world.playSound((PlayerEntity)null, pos, SoundEvents.BLOCK_CAKE_ADD_CANDLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                world.setBlockState(pos, CandleNCakeBlock.getCandleCakeFromCandle(block));
-                world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-                player.incrementStat(Stats.USED.getOrCreateStat(item));
-                return ActionResult.SUCCESS;
+    public ActionResultType use(BlockState state, World world, BlockPos blockPos, PlayerEntity player, Hand p_225533_5_, BlockRayTraceResult rayTraceResult) {
+        if (world.isClientSide) {
+            ItemStack itemstack = player.getItemInHand(p_225533_5_);
+            if (this.eat(world, blockPos, state, player).consumesAction()) {
+                return ActionResultType.SUCCESS;
+            }
+
+            if (itemstack.isEmpty()) {
+                return ActionResultType.CONSUME;
             }
         }
 
-        if (world.isClient) {
-            if (tryEat(world, pos, state, player).isAccepted()) {
-                return ActionResult.SUCCESS;
-            }
-
-            if (itemStack.isEmpty()) {
-                return ActionResult.CONSUME;
-            }
-        }
-
-        return tryEat(world, pos, state, player);
+        return this.eat(world, blockPos, state, player);
     }
 
-    protected static ActionResult tryEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (!player.canConsume(false)) {
-            return ActionResult.PASS;
+
+    protected static ActionResultType eat(IWorld world, BlockPos pos, BlockState state, PlayerEntity player) {
+        if (!player.canEat(false)) {
+            return ActionResultType.PASS;
         } else {
-            player.incrementStat(Stats.EAT_CAKE_SLICE);
-            player.getHungerManager().add(2, 0.1F);
-            int i = (Integer)state.get(BITES);
-            world.emitGameEvent(player, GameEvent.EAT, pos);
+            player.awardStat(Stats.EAT_CAKE_SLICE);
+            player.getFoodData().eat(2, 0.1F);
+            int i = (Integer)state.getValue(BITES);
             Random rand = new Random();
-            if(!world.isClient()) {
-                player.addStatusEffect(new StatusEffectInstance(StatusEffect.byRawId(rand.nextInt(31) + 1), 200, 0));
+            if(!world.isClientSide()) {
+                player.addEffect(new EffectInstance(Effect.byId(rand.nextInt(31) + 1), 200, 0));
             }
             if (i < 6) {
-                world.setBlockState(pos, state.with(BITES, i + 1), 3);
+                world.setBlock(pos, state.setValue(BITES, Integer.valueOf(i + 1)), 3);
             } else {
                 world.removeBlock(pos, false);
-                world.emitGameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             }
 
-            return ActionResult.SUCCESS;
+            return ActionResultType.SUCCESS;
         }
     }
 }
