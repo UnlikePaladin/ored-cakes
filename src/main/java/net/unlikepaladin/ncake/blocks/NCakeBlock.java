@@ -1,84 +1,103 @@
 package net.unlikepaladin.ncake.blocks;
 
-import net.minecraft.block.*;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.tag.ItemTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.ItemTags;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CakeBlock;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.CandleCakeBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.ForgeRegistries;
+
 
 import java.util.Random;
 
 public class NCakeBlock extends CakeBlock {
+    public static final IntegerProperty BITES = BlockStateProperties.BITES;
+    protected static final VoxelShape[] SHAPE_BY_BITE = new VoxelShape[]{Block.box(1.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(3.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(5.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(7.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(9.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(11.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D), Block.box(13.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D)};
 
-    public NCakeBlock(Settings settings) {
-        super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(BITES, 0));
+    public NCakeBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(BITES, Integer.valueOf(0)));
     }
 
 
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        ItemStack itemStack = player.getStackInHand(hand);
+    public InteractionResult use(BlockState state, Level world, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult hitResult) {
+        ItemStack itemStack = player.getItemInHand(interactionHand);
         Item item = itemStack.getItem();
-        if (itemStack.isIn(ItemTags.CANDLES) && (Integer)state.get(BITES) == 0) {
-            Block block = Block.getBlockFromItem(item);
+        if (itemStack.is(ItemTags.CANDLES) && (Integer)state.getValue(BITES) == 0) {
+            Block block = Block.byItem(item);
             if (block instanceof CandleBlock) {
                 if (!player.isCreative()) {
-                    itemStack.decrement(1);
+                    itemStack.shrink(1);
                 }
 
-                world.playSound((PlayerEntity)null, pos, SoundEvents.BLOCK_CAKE_ADD_CANDLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                world.setBlockState(pos, CandleNCakeBlock.getCandleCakeFromCandle(block));
-                world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-                player.incrementStat(Stats.USED.getOrCreateStat(item));
-                return ActionResult.SUCCESS;
+                world.playSound((Player)null, blockPos, SoundEvents.CAKE_ADD_CANDLE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                world.setBlockAndUpdate(blockPos, CandleNCakeBlock.byCandle(block));
+                world.gameEvent(player, GameEvent.BLOCK_CHANGE, blockPos);
+                player.awardStat(Stats.ITEM_USED.get(item));
+                return InteractionResult.SUCCESS;
             }
         }
 
-        if (world.isClient) {
-            if (tryEat(world, pos, state, player).isAccepted()) {
-                return ActionResult.SUCCESS;
+        if (world.isClientSide) {
+            if (eat(world, blockPos, state, player).consumesAction()) {
+                return InteractionResult.SUCCESS;
             }
 
             if (itemStack.isEmpty()) {
-                return ActionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
 
-        return tryEat(world, pos, state, player);
+        return eat(world, blockPos, state, player);
     }
 
-    protected static ActionResult tryEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (!player.canConsume(false)) {
-            return ActionResult.PASS;
+
+    protected static InteractionResult eat(LevelAccessor levelAccessor, BlockPos blockPos, BlockState p_51188_, Player player) {
+        if (!player.canEat(false)) {
+            return InteractionResult.PASS;
         } else {
-            player.incrementStat(Stats.EAT_CAKE_SLICE);
-            player.getHungerManager().add(2, 0.1F);
-            int i = (Integer)state.get(BITES);
-            world.emitGameEvent(player, GameEvent.EAT, pos);
+            player.awardStat(Stats.EAT_CAKE_SLICE);
+            player.getFoodData().eat(2, 0.1F);
+            int i = p_51188_.getValue(BITES);
+            levelAccessor.gameEvent(player, GameEvent.EAT, blockPos);
             Random rand = new Random();
-            if(!world.isClient()) {
-                player.addStatusEffect(new StatusEffectInstance(StatusEffect.byRawId(rand.nextInt(31) + 1), 200, 0));
+            if(!levelAccessor.isClientSide()) {
+                player.addEffect(new MobEffectInstance(MobEffect.byId(rand.nextInt(31) + 1), 200, 0));
             }
             if (i < 6) {
-                world.setBlockState(pos, state.with(BITES, i + 1), 3);
+                levelAccessor.setBlock(blockPos, p_51188_.setValue(BITES, Integer.valueOf(i + 1)), 3);
             } else {
-                world.removeBlock(pos, false);
-                world.emitGameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+                levelAccessor.removeBlock(blockPos, false);
+                levelAccessor.gameEvent(player, GameEvent.BLOCK_DESTROY, blockPos);
             }
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
     }
+
 }
