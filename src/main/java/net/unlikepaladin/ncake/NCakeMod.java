@@ -19,7 +19,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 
 import net.unlikepaladin.ncake.blocks.CandleNCakeBlock;
 import net.unlikepaladin.ncake.blocks.NCakeBlock;
@@ -77,11 +76,7 @@ public class NCakeMod {
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        // do something when the server starts
-        LOGGER.info("HELLO from server starting");
-    }
+
     private static String name = "_candle_ncake";
     public static Block NCAKE = new NCakeBlock(BlockBehaviour.Properties.of(Material.CAKE).sound(SoundType.NETHERITE_BLOCK).noOcclusion().strength(50.0f, 1200.0f)).setRegistryName(MODID, "ncake");
     public static Block CANDLE_NCAKE = new CandleNCakeBlock(Blocks.CANDLE, (NCakeBlock) NCAKE, BlockBehaviour.Properties.copy(NCAKE).lightLevel(BlockBehaviour.BlockStateBase::getLightEmission)).setRegistryName(MODID, "candle_ncake");
