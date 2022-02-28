@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.property.Properties;
@@ -20,13 +21,10 @@ import java.util.function.ToIntFunction;
 public class NCakeMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("ncake");
     public static final String MOD_ID = "ncake";
-    public static final Block NCAKE = new NCakeBlock(FabricBlockSettings.of(Material.CAKE).resistance(1200.0f).hardness(50.0f).mapColor(MapColor.GRAY).nonOpaque().sounds(BlockSoundGroup.NETHERITE));
-    public static final Block CANDLE_NCAKE = new CandleNCakeBlock(Blocks.CANDLE, (NCakeBlock) NCAKE,FabricBlockSettings.copy(NCAKE).luminance(createLightLevelFromLitBlockState(3)));;
-
+    public static Block NCAKE;
+    public static Block CANDLE_NCAKE;
     private static ToIntFunction<BlockState> createLightLevelFromLitBlockState(int litLevel) {
-        return (state) -> {
-            return (Boolean)state.get(Properties.LIT) ? litLevel : 0;
-        };
+        return (state) -> (Boolean)state.get(Properties.LIT) ? litLevel : 0;
     }
 
     private static void registerBlock(String name, Block block) {
@@ -36,9 +34,10 @@ public class NCakeMod implements ModInitializer {
     @Override
     public void onInitialize() {
         String name = "ncake";
-        Registry.register(Registry.BLOCK, new Identifier(MOD_ID, "ncake"), NCAKE);
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "ncake"), new BlockItem(NCAKE, new FabricItemSettings().group(ItemGroup.FOOD)));
-        registerBlock("candle_" + name, new CandleNCakeBlock(Blocks.CANDLE, (NCakeBlock) NCAKE, FabricBlockSettings.copy(CANDLE_NCAKE)));
+        Registry.register(Registry.BLOCK, new Identifier(MOD_ID, "ncake"), NCAKE = new NCakeBlock(AbstractBlock.Settings.of(Material.CAKE).resistance(1200.0f).hardness(50.0f).mapColor(MapColor.GRAY).nonOpaque().sounds(BlockSoundGroup.NETHERITE)));
+        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "ncake"), new BlockItem(NCAKE, new FabricItemSettings().group(ItemGroup.FOOD).fireproof()));
+
+        registerBlock("candle_" + name, CANDLE_NCAKE = new CandleNCakeBlock(Blocks.CANDLE, (NCakeBlock) NCAKE, AbstractBlock.Settings.copy(NCAKE).luminance(createLightLevelFromLitBlockState(3))));
         registerBlock("white_candle_" + name, new CandleNCakeBlock(Blocks.WHITE_CANDLE, (NCakeBlock) NCAKE, FabricBlockSettings.copy(CANDLE_NCAKE)));
         registerBlock("orange_candle_" + name, new CandleNCakeBlock(Blocks.ORANGE_CANDLE, (NCakeBlock) NCAKE, FabricBlockSettings.copy(CANDLE_NCAKE)));
         registerBlock("magenta_candle_" + name, new CandleNCakeBlock(Blocks.MAGENTA_CANDLE, (NCakeBlock) NCAKE, FabricBlockSettings.copy(CANDLE_NCAKE)));

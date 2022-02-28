@@ -31,14 +31,14 @@ public class NCakeBlock extends CakeBlock {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
-        if (itemStack.isIn(ItemTags.CANDLES) && (Integer)state.get(BITES) == 0) {
+        if (itemStack.isIn(ItemTags.CANDLES) && state.get(BITES) == 0) {
             Block block = Block.getBlockFromItem(item);
             if (block instanceof CandleBlock) {
                 if (!player.isCreative()) {
                     itemStack.decrement(1);
                 }
 
-                world.playSound((PlayerEntity)null, pos, SoundEvents.BLOCK_CAKE_ADD_CANDLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                world.playSound(null, pos, SoundEvents.BLOCK_CAKE_ADD_CANDLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 world.setBlockState(pos, CandleNCakeBlock.getCandleCakeFromCandle(block));
                 world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
                 player.incrementStat(Stats.USED.getOrCreateStat(item));
@@ -65,7 +65,7 @@ public class NCakeBlock extends CakeBlock {
         } else {
             player.incrementStat(Stats.EAT_CAKE_SLICE);
             player.getHungerManager().add(2, 0.1F);
-            int i = (Integer)state.get(BITES);
+            int i = state.get(BITES);
             world.emitGameEvent(player, GameEvent.EAT, pos);
             Random rand = new Random();
             if(!world.isClient()) {

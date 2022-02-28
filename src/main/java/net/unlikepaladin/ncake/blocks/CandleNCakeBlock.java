@@ -51,7 +51,7 @@ public class CandleNCakeBlock extends AbstractCandleBlock {
     }
 
     public static BlockState getCandleCakeFromCandle(Block candle) {
-        return ((CandleNCakeBlock)CANDLES_TO_CANDLE_CAKES.get(candle)).getDefaultState();
+        return CANDLES_TO_CANDLE_CAKES.get(candle).getDefaultState();
     }
     public static void extinguish(@Nullable PlayerEntity player, @NotNull BlockState state, World world, BlockPos pos) {
         if (!state.get(LIT)) {
