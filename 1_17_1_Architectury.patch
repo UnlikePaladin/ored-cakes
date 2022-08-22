@@ -1,0 +1,1186 @@
+Index: src/main/java/net/unlikepaladin/ncake/blocks/NCakeBlock.java
+===================================================================
+diff --git a/src/main/java/net/unlikepaladin/ncake/blocks/NCakeBlock.java b/src/main/java/net/unlikepaladin/ncake/blocks/NCakeBlock.java
+deleted file mode 100644
+--- a/src/main/java/net/unlikepaladin/ncake/blocks/NCakeBlock.java	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,64 +0,0 @@
+-package net.unlikepaladin.ncake.blocks;
+-
+-import net.minecraft.block.*;
+-import net.minecraft.entity.effect.StatusEffect;
+-import net.minecraft.entity.effect.StatusEffectInstance;
+-import net.minecraft.entity.player.PlayerEntity;
+-import net.minecraft.item.Item;
+-import net.minecraft.item.ItemStack;
+-import net.minecraft.sound.SoundCategory;
+-import net.minecraft.sound.SoundEvents;
+-import net.minecraft.stat.Stats;
+-import net.minecraft.tag.ItemTags;
+-import net.minecraft.util.ActionResult;
+-import net.minecraft.util.Hand;
+-import net.minecraft.util.hit.BlockHitResult;
+-import net.minecraft.util.math.BlockPos;
+-import net.minecraft.world.World;
+-import net.minecraft.world.WorldAccess;
+-
+-import java.util.Random;
+-
+-public class NCakeBlock extends CakeBlock {
+-
+-    public NCakeBlock(Settings settings) {
+-        super(settings);
+-        this.setDefaultState(this.stateManager.getDefaultState().with(BITES, 0));
+-    }
+-
+-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+-        if (world.isClient) {
+-            ItemStack itemStack = player.getStackInHand(hand);
+-            if (this.tryEat(world, pos, state, player).isAccepted()) {
+-                return ActionResult.SUCCESS;
+-            }
+-
+-            if (itemStack.isEmpty()) {
+-                return ActionResult.CONSUME;
+-            }
+-        }
+-
+-        return this.tryEat(world, pos, state, player);
+-    }
+-
+-    private ActionResult tryEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player) {
+-        if (!player.canConsume(false)) {
+-            return ActionResult.PASS;
+-        } else {
+-            player.incrementStat(Stats.EAT_CAKE_SLICE);
+-            player.getHungerManager().add(2, 0.1F);
+-            if(!world.isClient()) {
+-                Random rand = new Random();
+-                player.addStatusEffect(new StatusEffectInstance(StatusEffect.byRawId(rand.nextInt(31) + 1), 100, 0));
+-            }
+-            int i = (Integer) state.get(BITES);
+-            if (i < 6) {
+-                world.setBlockState(pos, (BlockState) state.with(BITES, i + 1), 3);
+-            } else {
+-                world.removeBlock(pos, false);
+-            }
+-
+-            return ActionResult.SUCCESS;
+-        }
+-    }
+-}
+Index: src/main/java/net/unlikepaladin/ncake/NCakeMod.java
+===================================================================
+diff --git a/src/main/java/net/unlikepaladin/ncake/NCakeMod.java b/src/main/java/net/unlikepaladin/ncake/NCakeMod.java
+deleted file mode 100644
+--- a/src/main/java/net/unlikepaladin/ncake/NCakeMod.java	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,43 +0,0 @@
+-package net.unlikepaladin.ncake;
+-
+-import net.fabricmc.api.ModInitializer;
+-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+-import net.minecraft.block.*;
+-import net.minecraft.item.BlockItem;
+-import net.minecraft.item.ItemGroup;
+-import net.minecraft.sound.BlockSoundGroup;
+-import net.minecraft.state.property.Properties;
+-import net.minecraft.util.Identifier;
+-import net.minecraft.util.registry.Registry;
+-import net.unlikepaladin.ncake.blocks.NCakeBlock;
+-import org.apache.logging.log4j.LogManager;
+-import org.apache.logging.log4j.Logger;
+-
+-import java.util.function.ToIntFunction;
+-
+-public class NCakeMod implements ModInitializer {
+-    public static final Logger LOGGER = LogManager.getLogger("ncake");
+-    public static final String MOD_ID = "ncake";
+-    public static final Block NCAKE = new NCakeBlock(FabricBlockSettings.of(Material.CAKE).resistance(1200.0f).hardness(50.0f).nonOpaque().sounds(BlockSoundGroup.NETHERITE));
+-
+-    private static ToIntFunction<BlockState> createLightLevelFromLitBlockState(int litLevel) {
+-        return (state) -> {
+-            return (Boolean)state.get(Properties.LIT) ? litLevel : 0;
+-        };
+-    }
+-
+-    private static void registerBlock(String name, Block block) {
+-        Identifier id = new Identifier(MOD_ID, name);
+-        Registry.register(Registry.BLOCK, id, block);
+-    }
+-    @Override
+-    public void onInitialize() {
+-        String name = "ncake";
+-        Registry.register(Registry.BLOCK, new Identifier(MOD_ID, "ncake"), NCAKE);
+-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "ncake"), new BlockItem(NCAKE, new FabricItemSettings().group(ItemGroup.FOOD)));
+-
+-    }
+-
+-
+-}
+Index: src/main/resources/assets/ncake/blockstates/ncake.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/blockstates/ncake.json b/src/main/resources/assets/ncake/blockstates/ncake.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/blockstates/ncake.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,25 +0,0 @@
+-{
+-  "variants": {
+-    "bites=0": {
+-      "model": "ncake:block/ncake"
+-    },
+-    "bites=1": {
+-      "model": "ncake:block/ncake_slice1"
+-    },
+-    "bites=2": {
+-      "model": "ncake:block/ncake_slice2"
+-    },
+-    "bites=3": {
+-      "model": "ncake:block/ncake_slice3"
+-    },
+-    "bites=4": {
+-      "model": "ncake:block/ncake_slice4"
+-    },
+-    "bites=5": {
+-      "model": "ncake:block/ncake_slice5"
+-    },
+-    "bites=6": {
+-      "model": "ncake:block/ncake_slice6"
+-    }
+-  }
+-}
+\ No newline at end of file
+Index: src/main/resources/assets/ncake/lang/en_us.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/lang/en_us.json b/src/main/resources/assets/ncake/lang/en_us.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/lang/en_us.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,3 +0,0 @@
+-{
+-  "block.ncake.ncake": "Netherite Cake",
+-}
+\ No newline at end of file
+Index: src/main/resources/assets/ncake/models/block/ncake.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake.json b/src/main/resources/assets/ncake/models/block/ncake.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,9 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/block/ncake_slice1.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice1.json b/src/main/resources/assets/ncake/models/block/ncake_slice1.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice1.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,10 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice1",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/block/ncake_slice2.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice2.json b/src/main/resources/assets/ncake/models/block/ncake_slice2.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice2.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,10 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice2",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/block/ncake_slice3.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice3.json b/src/main/resources/assets/ncake/models/block/ncake_slice3.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice3.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,10 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice3",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/block/ncake_slice4.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice4.json b/src/main/resources/assets/ncake/models/block/ncake_slice4.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice4.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,11 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice4",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+-
+Index: src/main/resources/assets/ncake/models/block/ncake_slice5.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice5.json b/src/main/resources/assets/ncake/models/block/ncake_slice5.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice5.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,10 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice5",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/block/ncake_slice6.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/block/ncake_slice6.json b/src/main/resources/assets/ncake/models/block/ncake_slice6.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/block/ncake_slice6.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,10 +0,0 @@
+-{
+-    "parent": "minecraft:block/cake_slice6",
+-    "textures": {
+-        "particle": "ncake:block/ncake_side",
+-        "bottom": "ncake:block/ncake_bottom",
+-        "top": "ncake:block/ncake_top",
+-        "side": "ncake:block/ncake_side",
+-        "inside": "ncake:block/ncake_inner"
+-    }
+-}
+Index: src/main/resources/assets/ncake/models/item/ncake.json
+===================================================================
+diff --git a/src/main/resources/assets/ncake/models/item/ncake.json b/src/main/resources/assets/ncake/models/item/ncake.json
+deleted file mode 100644
+--- a/src/main/resources/assets/ncake/models/item/ncake.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,6 +0,0 @@
+-{
+-  "parent": "minecraft:item/generated",
+-  "textures": {
+-    "layer0": "ncake:item/ncake"
+-  }
+-}
+\ No newline at end of file
+Index: src/main/resources/data/ncake/loot_tables/blocks/ncake.json
+===================================================================
+diff --git a/src/main/resources/data/ncake/loot_tables/blocks/ncake.json b/src/main/resources/data/ncake/loot_tables/blocks/ncake.json
+deleted file mode 100644
+--- a/src/main/resources/data/ncake/loot_tables/blocks/ncake.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,3 +0,0 @@
+-{
+-  "type": "minecraft:block"
+-}
+Index: src/main/resources/data/ncake/recipes/ncake.json
+===================================================================
+diff --git a/src/main/resources/data/ncake/recipes/ncake.json b/src/main/resources/data/ncake/recipes/ncake.json
+deleted file mode 100644
+--- a/src/main/resources/data/ncake/recipes/ncake.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,25 +0,0 @@
+-{
+-  "type": "minecraft:crafting_shaped",
+-  "pattern": [
+-    "MMM",
+-    "SNS",
+-    "WWW"
+-  ],
+-  "key": {
+-    "M": {
+-      "item": "minecraft:milk_bucket"
+-    },
+-    "S": {
+-      "item": "minecraft:sugar"
+-    },
+-    "N": {
+-      "item": "minecraft:netherite_ingot"
+-    },
+-    "W": {
+-      "item": "minecraft:wheat"
+-    }
+-  },
+-  "result": {
+-    "item": "ncake:ncake"
+-  }
+-}
+\ No newline at end of file
+Index: src/main/resources/fabric.mod.json
+===================================================================
+diff --git a/src/main/resources/fabric.mod.json b/src/main/resources/fabric.mod.json
+deleted file mode 100644
+--- a/src/main/resources/fabric.mod.json	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,37 +0,0 @@
+-{
+-  "schemaVersion": 1,
+-  "id": "ncake",
+-  "version": "${version}",
+-
+-  "name": "Netherite Cake Mod",
+-  "description": "Brings Netherite Cake to your reality.",
+-  "authors": [
+-    "UnlikePaladin"
+-  ],
+-  "contact": {
+-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/netherite-cake",
+-    "sources": "https://github.com/UnlikePaladin/netherite-cake"
+-  },
+-
+-  "license": "LGPL-3.0-only",
+-  "icon": "assets/ncake/ncake_logo_square.png",
+-
+-  "environment": "*",
+-  "entrypoints": {
+-    "main": [
+-      "net.unlikepaladin.ncake.NCakeMod"
+-    ]
+-  },
+-  "mixins": [
+-  ],
+-
+-  "depends": {
+-    "fabricloader": ">=0.10.4",
+-    "fabric": "*",
+-    "minecraft": "1.16.x",
+-    "java": ">=8"
+-  },
+-  "suggests": {
+-    "another-mod": "*"
+-  }
+-}
+Index: LICENSE.txt
+===================================================================
+diff --git a/LICENSE.txt b/LICENSE.txt
+deleted file mode 100644
+--- a/LICENSE.txt	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,165 +0,0 @@
+-                   GNU LESSER GENERAL PUBLIC LICENSE
+-                       Version 3, 29 June 2007
+-
+- Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+- Everyone is permitted to copy and distribute verbatim copies
+- of this license document, but changing it is not allowed.
+-
+-
+-  This version of the GNU Lesser General Public License incorporates
+-the terms and conditions of version 3 of the GNU General Public
+-License, supplemented by the additional permissions listed below.
+-
+-  0. Additional Definitions.
+-
+-  As used herein, "this License" refers to version 3 of the GNU Lesser
+-General Public License, and the "GNU GPL" refers to version 3 of the GNU
+-General Public License.
+-
+-  "The Library" refers to a covered work governed by this License,
+-other than an Application or a Combined Work as defined below.
+-
+-  An "Application" is any work that makes use of an interface provided
+-by the Library, but which is not otherwise based on the Library.
+-Defining a subclass of a class defined by the Library is deemed a mode
+-of using an interface provided by the Library.
+-
+-  A "Combined Work" is a work produced by combining or linking an
+-Application with the Library.  The particular version of the Library
+-with which the Combined Work was made is also called the "Linked
+-Version".
+-
+-  The "Minimal Corresponding Source" for a Combined Work means the
+-Corresponding Source for the Combined Work, excluding any source code
+-for portions of the Combined Work that, considered in isolation, are
+-based on the Application, and not on the Linked Version.
+-
+-  The "Corresponding Application Code" for a Combined Work means the
+-object code and/or source code for the Application, including any data
+-and utility programs needed for reproducing the Combined Work from the
+-Application, but excluding the System Libraries of the Combined Work.
+-
+-  1. Exception to Section 3 of the GNU GPL.
+-
+-  You may convey a covered work under sections 3 and 4 of this License
+-without being bound by section 3 of the GNU GPL.
+-
+-  2. Conveying Modified Versions.
+-
+-  If you modify a copy of the Library, and, in your modifications, a
+-facility refers to a function or data to be supplied by an Application
+-that uses the facility (other than as an argument passed when the
+-facility is invoked), then you may convey a copy of the modified
+-version:
+-
+-   a) under this License, provided that you make a good faith effort to
+-   ensure that, in the event an Application does not supply the
+-   function or data, the facility still operates, and performs
+-   whatever part of its purpose remains meaningful, or
+-
+-   b) under the GNU GPL, with none of the additional permissions of
+-   this License applicable to that copy.
+-
+-  3. Object Code Incorporating Material from Library Header Files.
+-
+-  The object code form of an Application may incorporate material from
+-a header file that is part of the Library.  You may convey such object
+-code under terms of your choice, provided that, if the incorporated
+-material is not limited to numerical parameters, data structure
+-layouts and accessors, or small macros, inline functions and templates
+-(ten or fewer lines in length), you do both of the following:
+-
+-   a) Give prominent notice with each copy of the object code that the
+-   Library is used in it and that the Library and its use are
+-   covered by this License.
+-
+-   b) Accompany the object code with a copy of the GNU GPL and this license
+-   document.
+-
+-  4. Combined Works.
+-
+-  You may convey a Combined Work under terms of your choice that,
+-taken together, effectively do not restrict modification of the
+-portions of the Library contained in the Combined Work and reverse
+-engineering for debugging such modifications, if you also do each of
+-the following:
+-
+-   a) Give prominent notice with each copy of the Combined Work that
+-   the Library is used in it and that the Library and its use are
+-   covered by this License.
+-
+-   b) Accompany the Combined Work with a copy of the GNU GPL and this license
+-   document.
+-
+-   c) For a Combined Work that displays copyright notices during
+-   execution, include the copyright notice for the Library among
+-   these notices, as well as a reference directing the user to the
+-   copies of the GNU GPL and this license document.
+-
+-   d) Do one of the following:
+-
+-       0) Convey the Minimal Corresponding Source under the terms of this
+-       License, and the Corresponding Application Code in a form
+-       suitable for, and under terms that permit, the user to
+-       recombine or relink the Application with a modified version of
+-       the Linked Version to produce a modified Combined Work, in the
+-       manner specified by section 6 of the GNU GPL for conveying
+-       Corresponding Source.
+-
+-       1) Use a suitable shared library mechanism for linking with the
+-       Library.  A suitable mechanism is one that (a) uses at run time
+-       a copy of the Library already present on the user's computer
+-       system, and (b) will operate properly with a modified version
+-       of the Library that is interface-compatible with the Linked
+-       Version.
+-
+-   e) Provide Installation Information, but only if you would otherwise
+-   be required to provide such information under section 6 of the
+-   GNU GPL, and only to the extent that such information is
+-   necessary to install and execute a modified version of the
+-   Combined Work produced by recombining or relinking the
+-   Application with a modified version of the Linked Version. (If
+-   you use option 4d0, the Installation Information must accompany
+-   the Minimal Corresponding Source and Corresponding Application
+-   Code. If you use option 4d1, you must provide the Installation
+-   Information in the manner specified by section 6 of the GNU GPL
+-   for conveying Corresponding Source.)
+-
+-  5. Combined Libraries.
+-
+-  You may place library facilities that are a work based on the
+-Library side by side in a single library together with other library
+-facilities that are not Applications and are not covered by this
+-License, and convey such a combined library under terms of your
+-choice, if you do both of the following:
+-
+-   a) Accompany the combined library with a copy of the same work based
+-   on the Library, uncombined with any other library facilities,
+-   conveyed under the terms of this License.
+-
+-   b) Give prominent notice with the combined library that part of it
+-   is a work based on the Library, and explaining where to find the
+-   accompanying uncombined form of the same work.
+-
+-  6. Revised Versions of the GNU Lesser General Public License.
+-
+-  The Free Software Foundation may publish revised and/or new versions
+-of the GNU Lesser General Public License from time to time. Such new
+-versions will be similar in spirit to the present version, but may
+-differ in detail to address new problems or concerns.
+-
+-  Each version is given a distinguishing version number. If the
+-Library as you received it specifies that a certain numbered version
+-of the GNU Lesser General Public License "or any later version"
+-applies to it, you have the option of following the terms and
+-conditions either of that published version or of any later version
+-published by the Free Software Foundation. If the Library as you
+-received it does not specify a version number of the GNU Lesser
+-General Public License, you may choose any version of the GNU Lesser
+-General Public License ever published by the Free Software Foundation.
+-
+-  If the Library as you received it specifies that a proxy can decide
+-whether future versions of the GNU Lesser General Public License shall
+-apply, that proxy's public statement of acceptance of any version is
+-permanent authorization for you to choose that version for the
+-Library.
+Index: README.md
+===================================================================
+diff --git a/README.md b/README.md
+deleted file mode 100644
+--- a/README.md	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ /dev/null	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
+@@ -1,19 +0,0 @@
+-# Netherite Cake Mod
+-![ModIcon](https://github.com/UnlikePaladin/netherite-cake/blob/main/src/main/resources/assets/ncake/ncake_logo.png?raw=true)
+-
+-## Installation
+-
+-You will need Fabric Loader 0.10.x or newer installed in your game in order to load this mod. If you haven't installed Fabric mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
+-
+-You can find the latest releases under CurseForge, Modrinth and the Github Releases Page
+-
+-[CurseForge](https://www.curseforge.com/minecraft/mc-mods/netherite-cake)
+-
+-[Modrinth](https://modrinth.com/mod/netherite-cake) 
+-
+-[GitHub release](https://github.com/UnlikePaladin/netherite-cake/releases)
+-
+-
+-## License
+-
+-The Netherite Cake Mod is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the [license file](LICENSE.txt).
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle.properties b/gradle.properties
+--- a/gradle.properties	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ b/gradle.properties	(date 1661127190499)
+@@ -1,14 +1,18 @@
+-# Done to increase the memory available to gradle.
+-org.gradle.jvmargs=-Xmx1G
+-# Fabric Properties
+-# check these on https://modmuss50.me/fabric.html
+-minecraft_version=1.16.5
+-yarn_mappings=1.16.5+build.10
+-loader_version=0.12.4
+-# Mod Properties
+-mod_version=1.1
+-maven_group=net.unlikepaladin
++org.gradle.jvmargs=-Xmx2048M
++
++minecraft_version=1.17.1
++enabled_platforms=fabric,forge
++
+ archives_base_name=netherite_cake
+-# Dependencies
+-# check this on https://modmuss50.me/fabric.html
+-fabric_version=0.41.3+1.16
++mod_version=1.3.0
++maven_group=com.unlikepaladin
++
++architectury_version=2.10.12
++
++fabric_loader_version=0.14.9
++fabric_api_version=0.46.1+1.17
++
++forge_version=1.17.1-37.1.1
++
++
++
+Index: gradlew
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradlew b/gradlew
+--- a/gradlew	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ b/gradlew	(date 1660391704000)
+@@ -1,7 +1,7 @@
+-#!/usr/bin/env sh
++#!/bin/sh
+ 
+ #
+-# Copyright 2015 the original author or authors.
++# Copyright © 2015-2021 the original authors.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -17,67 +17,101 @@
+ #
+ 
+ ##############################################################################
+-##
+-##  Gradle start up script for UN*X
+-##
++#
++#   Gradle start up script for POSIX generated by Gradle.
++#
++#   Important for running:
++#
++#   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
++#       noncompliant, but you have some other compliant shell such as ksh or
++#       bash, then to run this script, type that shell name before the whole
++#       command line, like:
++#
++#           ksh Gradle
++#
++#       Busybox and similar reduced shells will NOT work, because this script
++#       requires all of these POSIX shell features:
++#         * functions;
++#         * expansions «$var», «${var}», «${var:-default}», «${var+SET}»,
++#           «${var#prefix}», «${var%suffix}», and «$( cmd )»;
++#         * compound commands having a testable exit status, especially «case»;
++#         * various built-in commands including «command», «set», and «ulimit».
++#
++#   Important for patching:
++#
++#   (2) This script targets any POSIX shell, so it avoids extensions provided
++#       by Bash, Ksh, etc; in particular arrays are avoided.
++#
++#       The "traditional" practice of packing multiple parameters into a
++#       space-separated string is a well documented source of bugs and security
++#       problems, so this is (mostly) avoided, by progressively accumulating
++#       options in "$@", and eventually passing that to Java.
++#
++#       Where the inherited environment variables (DEFAULT_JVM_OPTS, JAVA_OPTS,
++#       and GRADLE_OPTS) rely on word-splitting, this is performed explicitly;
++#       see the in-line comments for details.
++#
++#       There are tweaks for specific operating systems such as AIX, CygWin,
++#       Darwin, MinGW, and NonStop.
++#
++#   (3) This script is generated from the Groovy template
++#       https://github.com/gradle/gradle/blob/master/subprojects/plugins/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
++#       within the Gradle project.
++#
++#       You can find Gradle at https://github.com/gradle/gradle/.
++#
+ ##############################################################################
+ 
+ # Attempt to set APP_HOME
++
+ # Resolve links: $0 may be a link
+-PRG="$0"
+-# Need this for relative symlinks.
+-while [ -h "$PRG" ] ; do
+-    ls=`ls -ld "$PRG"`
+-    link=`expr "$ls" : '.*-> \(.*\)$'`
+-    if expr "$link" : '/.*' > /dev/null; then
+-        PRG="$link"
+-    else
+-        PRG=`dirname "$PRG"`"/$link"
+-    fi
++app_path=$0
++
++# Need this for daisy-chained symlinks.
++while
++    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
++    [ -h "$app_path" ]
++do
++    ls=$( ls -ld "$app_path" )
++    link=${ls#*' -> '}
++    case $link in             #(
++      /*)   app_path=$link ;; #(
++      *)    app_path=$APP_HOME$link ;;
++    esac
+ done
+-SAVED="`pwd`"
+-cd "`dirname \"$PRG\"`/" >/dev/null
+-APP_HOME="`pwd -P`"
+-cd "$SAVED" >/dev/null
++
++APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+ 
+ APP_NAME="Gradle"
+-APP_BASE_NAME=`basename "$0"`
++APP_BASE_NAME=${0##*/}
+ 
+ # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+ DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+ 
+ # Use the maximum available, or set MAX_FD != -1 to use that value.
+-MAX_FD="maximum"
++MAX_FD=maximum
+ 
+ warn () {
+     echo "$*"
+-}
++} >&2
+ 
+ die () {
+     echo
+     echo "$*"
+     echo
+     exit 1
+-}
++} >&2
+ 
+ # OS specific support (must be 'true' or 'false').
+ cygwin=false
+ msys=false
+ darwin=false
+ nonstop=false
+-case "`uname`" in
+-  CYGWIN* )
+-    cygwin=true
+-    ;;
+-  Darwin* )
+-    darwin=true
+-    ;;
+-  MSYS* | MINGW* )
+-    msys=true
+-    ;;
+-  NONSTOP* )
+-    nonstop=true
+-    ;;
++case "$( uname )" in                #(
++  CYGWIN* )         cygwin=true  ;; #(
++  Darwin* )         darwin=true  ;; #(
++  MSYS* | MINGW* )  msys=true    ;; #(
++  NONSTOP* )        nonstop=true ;;
+ esac
+ 
+ CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+@@ -87,9 +121,9 @@
+ if [ -n "$JAVA_HOME" ] ; then
+     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+         # IBM's JDK on AIX uses strange locations for the executables
+-        JAVACMD="$JAVA_HOME/jre/sh/java"
++        JAVACMD=$JAVA_HOME/jre/sh/java
+     else
+-        JAVACMD="$JAVA_HOME/bin/java"
++        JAVACMD=$JAVA_HOME/bin/java
+     fi
+     if [ ! -x "$JAVACMD" ] ; then
+         die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+@@ -98,7 +132,7 @@
+ location of your Java installation."
+     fi
+ else
+-    JAVACMD="java"
++    JAVACMD=java
+     which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+ 
+ Please set the JAVA_HOME variable in your environment to match the
+@@ -106,80 +140,95 @@
+ fi
+ 
+ # Increase the maximum file descriptors if we can.
+-if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
+-    MAX_FD_LIMIT=`ulimit -H -n`
+-    if [ $? -eq 0 ] ; then
+-        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+-            MAX_FD="$MAX_FD_LIMIT"
+-        fi
+-        ulimit -n $MAX_FD
+-        if [ $? -ne 0 ] ; then
+-            warn "Could not set maximum file descriptor limit: $MAX_FD"
+-        fi
+-    else
+-        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+-    fi
++if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
++    case $MAX_FD in #(
++      max*)
++        MAX_FD=$( ulimit -H -n ) ||
++            warn "Could not query maximum file descriptor limit"
++    esac
++    case $MAX_FD in  #(
++      '' | soft) :;; #(
++      *)
++        ulimit -n "$MAX_FD" ||
++            warn "Could not set maximum file descriptor limit to $MAX_FD"
++    esac
+ fi
+ 
+-# For Darwin, add options to specify how the application appears in the dock
+-if $darwin; then
+-    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
+-fi
++# Collect all arguments for the java command, stacking in reverse order:
++#   * args from the command line
++#   * the main class name
++#   * -classpath
++#   * -D...appname settings
++#   * --module-path (only if needed)
++#   * DEFAULT_JVM_OPTS, JAVA_OPTS, and GRADLE_OPTS environment variables.
+ 
+ # For Cygwin or MSYS, switch paths to Windows format before running java
+-if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
+-    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+-    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
++if "$cygwin" || "$msys" ; then
++    APP_HOME=$( cygpath --path --mixed "$APP_HOME" )
++    CLASSPATH=$( cygpath --path --mixed "$CLASSPATH" )
+ 
+-    JAVACMD=`cygpath --unix "$JAVACMD"`
++    JAVACMD=$( cygpath --unix "$JAVACMD" )
+ 
+-    # We build the pattern for arguments to be converted via cygpath
+-    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+-    SEP=""
+-    for dir in $ROOTDIRSRAW ; do
+-        ROOTDIRS="$ROOTDIRS$SEP$dir"
+-        SEP="|"
+-    done
+-    OURCYGPATTERN="(^($ROOTDIRS))"
+-    # Add a user-defined pattern to the cygpath arguments
+-    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+-        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+-    fi
+     # Now convert the arguments - kludge to limit ourselves to /bin/sh
+-    i=0
+-    for arg in "$@" ; do
+-        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+-        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
+-
+-        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
+-            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
+-        else
+-            eval `echo args$i`="\"$arg\""
+-        fi
+-        i=`expr $i + 1`
+-    done
+-    case $i in
+-        0) set -- ;;
+-        1) set -- "$args0" ;;
+-        2) set -- "$args0" "$args1" ;;
+-        3) set -- "$args0" "$args1" "$args2" ;;
+-        4) set -- "$args0" "$args1" "$args2" "$args3" ;;
+-        5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
+-        6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
+-        7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
+-        8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
+-        9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
+-    esac
++    for arg do
++        if
++            case $arg in                                #(
++              -*)   false ;;                            # don't mess with options #(
++              /?*)  t=${arg#/} t=/${t%%/*}              # looks like a POSIX filepath
++                    [ -e "$t" ] ;;                      #(
++              *)    false ;;
++            esac
++        then
++            arg=$( cygpath --path --ignore --mixed "$arg" )
++        fi
++        # Roll the args list around exactly as many times as the number of
++        # args, so each arg winds up back in the position where it started, but
++        # possibly modified.
++        #
++        # NB: a `for` loop captures its iteration list before it begins, so
++        # changing the positional parameters here affects neither the number of
++        # iterations, nor the values presented in `arg`.
++        shift                   # remove old arg
++        set -- "$@" "$arg"      # push replacement arg
++    done
+ fi
+ 
+-# Escape application args
+-save () {
+-    for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
+-    echo " "
+-}
+-APP_ARGS=`save "$@"`
++# Collect all arguments for the java command;
++#   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
++#     shell script including quotes and variable substitutions, so put them in
++#     double quotes to make sure that they get re-expanded; and
++#   * put everything else in single quotes, so that it's not re-expanded.
+ 
+-# Collect all arguments for the java command, following the shell quoting and substitution rules
+-eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
++set -- \
++        "-Dorg.gradle.appname=$APP_BASE_NAME" \
++        -classpath "$CLASSPATH" \
++        org.gradle.wrapper.GradleWrapperMain \
++        "$@"
++
++# Use "xargs" to parse quoted args.
++#
++# With -n1 it outputs one arg per line, with the quotes and backslashes removed.
++#
++# In Bash we could simply go:
++#
++#   readarray ARGS < <( xargs -n1 <<<"$var" ) &&
++#   set -- "${ARGS[@]}" "$@"
++#
++# but POSIX shell has neither arrays nor command substitution, so instead we
++# post-process each arg (as a line of input to sed) to backslash-escape any
++# character that might be a shell metacharacter, then use eval to reverse
++# that process (while maintaining the separation between arguments), and wrap
++# the whole thing up as a single "set" statement.
++#
++# This will of course break if any of these variables contains a newline or
++# an unmatched quote.
++#
++
++eval "set -- $(
++        printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" |
++        xargs -n1 |
++        sed ' s~[^-[:alnum:]+,./:=@_]~\\&~g; ' |
++        tr '\n' ' '
++    )" '"$@"'
+ 
+ exec "$JAVACMD" "$@"
+Index: settings.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/settings.gradle b/settings.gradle
+--- a/settings.gradle	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ b/settings.gradle	(date 1660391704000)
+@@ -1,9 +1,14 @@
+ pluginManagement {
+     repositories {
+-        maven {
+-            name = 'Fabric'
+-            url = 'https://maven.fabricmc.net/'
+-        }
++        maven { url "https://maven.fabricmc.net/" }
++        maven { url "https://maven.architectury.dev/" }
++        maven { url "https://maven.minecraftforge.net/" }
+         gradlePluginPortal()
+     }
+ }
++
++include("common")
++include("fabric")
++include("forge")
++
++rootProject.name = "architectury-example-mod"
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ b/build.gradle	(date 1661119721346)
+@@ -1,85 +1,51 @@
+ plugins {
+-    id 'fabric-loom' version '0.10-SNAPSHOT'
+-    id 'maven-publish'
++    id "architectury-plugin" version "3.4-SNAPSHOT"
++    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
++}
++
++architectury {
++    minecraft = rootProject.minecraft_version
+ }
+ 
+-version = project.mod_version
+-group = project.maven_group
++subprojects {
++    apply plugin: "dev.architectury.loom"
++
++    loom {
++        silentMojangMappingsLicense()
++    }
++
++    dependencies {
++        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
++        // The following line declares the mojmap mappings, you may use other mappings as well
++        mappings loom.officialMojangMappings()
++        // The following line declares the yarn mappings you may select this one as well.
++        // mappings "net.fabricmc:yarn:1.17.1+build.65:v2"
++    }
++}
++
++allprojects {
++    apply plugin: "java"
++    apply plugin: "architectury-plugin"
++    apply plugin: "maven-publish"
++
++    archivesBaseName = rootProject.archives_base_name
++    version = rootProject.mod_version
++    group = rootProject.maven_group
+ 
+-repositories {
+-    // Add repositories to retrieve artifacts from in here.
+-    // You should only use this when depending on other mods because
+-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+-    // for more information about repositories.
+-}
+-dependencies {
+-    minecraft "com.mojang:minecraft:1.16.5"
+-    mappings "net.fabricmc:yarn:1.16.5+build.10:v2"
+-    modImplementation "net.fabricmc:fabric-loader:0.12.4"
+-
+-    //Fabric api
+-    modImplementation "net.fabricmc.fabric-api:fabric-api:0.41.3+1.16"
+-}
++    repositories {
++        // Add repositories to retrieve artifacts from in here.
++        // You should only use this when depending on other mods because
++        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
++        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
++        // for more information about repositories.
++    }
+ 
+-processResources {
+-    inputs.property "version", project.version
+-    filteringCharset "UTF-8"
+-
+-    filesMatching("fabric.mod.json") {
+-        expand "version": project.version
++    tasks.withType(JavaCompile) {
++        options.encoding = "UTF-8"
++        options.release = 16
+     }
+-}
+-
+-def targetJavaVersion = 8
+-tasks.withType(JavaCompile).configureEach {
+-    // ensure that the encoding is set to UTF-8, no matter what the system default is
+-    // this fixes some edge cases with special characters not displaying correctly
+-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+-    // If Javadoc is generated, this must be specified in that task too.
+-    it.options.encoding = "UTF-8"
+-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+-        it.options.release = targetJavaVersion
+-    }
+-}
+ 
+-java {
+-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+-    if (JavaVersion.current() < javaVersion) {
+-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+-    }
+-    archivesBaseName = project.archives_base_name
+-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+-    // if it is present.
+-    // If you remove this line, sources will not be generated.
+-    withSourcesJar()
+-}
+-
+-jar {
+-    from("LICENSE") {
+-        rename { "${it}_${project.archivesBaseName}" }
++    java {
++        withSourcesJar()
+     }
+ }
+-
+-// configure the maven publication
+-publishing {
+-    publications {
+-        mavenJava(MavenPublication) {
+-            // add all the jars that should be included when publishing to maven
+-            artifact(remapJar) {
+-                builtBy remapJar
+-            }
+-            artifact(sourcesJar) {
+-                builtBy remapSourcesJar
+-            }
+-        }
+-    }
+-
+-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+-    repositories {
+-        // Add repositories to publish to here.
+-        // Notice: This block does NOT have the same function as the block in the top level.
+-        // The repositories here will be used for publishing your artifact, not for
+-        // retrieving dependencies.
+-    }
+-}
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+--- a/gradle/wrapper/gradle-wrapper.properties	(revision 83a6ca31206cb8cd11acbf4e5cbccf6e5ff1fb7f)
++++ b/gradle/wrapper/gradle-wrapper.properties	(date 1660391704000)
+@@ -1,1 +1,5 @@
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.1.1-bin.zip
++distributionBase=GRADLE_USER_HOME
++distributionPath=wrapper/dists
++distributionUrl=https\://services.gradle.org/distributions/gradle-7.4-bin.zip
++zipStoreBase=GRADLE_USER_HOME
++zipStorePath=wrapper/dists
+diff --git a/src/main/resources/assets/ncake/textures/block/ncake_bottom.png b/src/main/resources/assets/ncake/textures/block/ncake_bottom.png
+deleted file mode 100644
+index f94a04c1e25f47f216de1fd0bb6a23d51ac24bc9..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/textures/block/ncake_inner.png b/src/main/resources/assets/ncake/textures/block/ncake_inner.png
+deleted file mode 100644
+index d286dd09dc945c450ed22b95f7cf15bbd96ecc55..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/textures/block/ncake_side.png b/src/main/resources/assets/ncake/textures/block/ncake_side.png
+deleted file mode 100644
+index 720d896fde144a5b6b2c953b0c5c9ffdfd8962b6..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/textures/block/ncake_top.png b/src/main/resources/assets/ncake/textures/block/ncake_top.png
+deleted file mode 100644
+index 2924288061594fb674584c4229495c4801c89126..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/textures/item/ncake.png b/src/main/resources/assets/ncake/textures/item/ncake.png
+deleted file mode 100644
+index 4ac781cfe7c10b9111780e7eee74740d7ff392c0..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/ncake_logo.png b/src/main/resources/assets/ncake/ncake_logo.png
+deleted file mode 100644
+index 61fd1c88a1738d4862826e3715bee6ab9afb9b1d..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git a/src/main/resources/assets/ncake/ncake_logo_square.png b/src/main/resources/assets/ncake/ncake_logo_square.png
+deleted file mode 100644
+index eb61527fd4b247c973891409ad0d8726c1231e14..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+

@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+issueTrackerURL = "https://github.com/UnlikePaladin/netherite-cake/issues"
+license = "lgpl-3.0-only"
+
+[[mods]]
+modId = "ncake"
+version = "${version}"
+displayName = "Netherite Cake Mod"
+authors = "UnlikePaladin"
+description = '''
+    Brings Netherite Cake to Your Reality
+'''
+displayURL="https://www.curseforge.com/minecraft/mc-mods/netherite-cake"
+logoFile = "ncake_logo.png"
+
+[[dependencies.ncake]]
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ncake]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5,)"
+ordering = "NONE"
+side = "BOTH"

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "ncake:block/white_candle_ncake"
+    },
+    "lit=true": {
+      "model": "ncake:block/white_candle_ncake_lit"
+    }
+  }
+}
