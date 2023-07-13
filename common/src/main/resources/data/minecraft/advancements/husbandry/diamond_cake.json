@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "iron": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "oredcakes:diamond_cake"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.husbandry.diamond_cake.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "oredcakes:diamond_cake"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.husbandry.diamond_cake.title"
+    }
+  }
+}

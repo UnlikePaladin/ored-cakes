@@ -1,0 +1,9 @@
+{
+    "parent": "minecraft:block/cake",
+    "textures": {
+        "particle": "oredcakes:block/gold_cake_side",
+        "bottom": "oredcakes:block/gold_cake_bottom",
+        "top": "oredcakes:block/gold_cake_top",
+        "side": "oredcakes:block/gold_cake_side"
+    }
+}

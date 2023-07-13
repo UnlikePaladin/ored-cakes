@@ -1,27 +1,27 @@
 modLoader = "javafml"
 loaderVersion = "[36,)"
-issueTrackerURL = "https://github.com/UnlikePaladin/netherite-cake/issues"
+issueTrackerURL = "https://github.com/UnlikePaladin/ored-cakes/issues"
 license = "lgpl-3.0-only"
 
 [[mods]]
-modId = "ncake"
+modId = "oredcakes"
 version = "${version}"
-displayName = "Netherite Cake Mod"
+displayName = "Ored Cakes Mod"
 authors = "UnlikePaladin"
 description = '''
-    Brings Netherite Cake to Your Reality
+    Makes Ore Cakes a reality
 '''
-displayURL="https://www.curseforge.com/minecraft/mc-mods/netherite-cake"
-logoFile = "ncake_logo.png"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/ored-cakes"
+logoFile = "ored_cakes.png"
 
-[[dependencies.ncake]]
+[[dependencies.oredcakes]]
 modId = "forge"
 mandatory = true
 versionRange = "[36,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.ncake]]
+[[dependencies.oredcakes]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.16.5,)"

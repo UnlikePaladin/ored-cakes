@@ -1,24 +1,27 @@
 {
   "schemaVersion": 1,
-  "id": "ncake",
+  "id": "oredcakes",
   "version": "${version}",
-  "name": "Netherite Cake Mod",
-  "description": "Brings Netherite Cake to your reality.",
+  "name": "Ored Cakes",
+  "description": "Makes Ore Cakes a reality",
   "authors": [
     "UnlikePaladin"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/netherite-cake",
-    "sources": "https://github.com/UnlikePaladin/netherite-cake"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/ored-cakes",
+    "sources": "https://github.com/UnlikePaladin/ored-cakes"
   },
   "license": "LGPL-3.0-only",
-  "icon": "assets/ncake/ncake_logo_square.png",
+  "icon": "assets/oredcakes/ored_cakes_square.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.unlikepaladin.ncake.fabric.NCakeModFabric"
+      "com.unlikepaladin.oredcakes.fabric.OredCakesModFabric"
     ]
   },
+  "mixins": [
+    "oredcakes.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "minecraft": ">=1.16.5"

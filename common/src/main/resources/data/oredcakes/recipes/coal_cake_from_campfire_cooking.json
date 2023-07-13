@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "cookingtime": 300,
+  "experience": 0.4,
+  "ingredient": {
+    "item": "minecraft:cake"
+  },
+  "result": "oredcakes:coal_cake"
+}
