@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.unlikepaladin.oredcakes.fabric.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "client": [
+  ],
+  "mixins": [
+    "MixinResourceLocation"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

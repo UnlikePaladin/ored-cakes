@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "oredcakes:block/cyan_candle_netherite_cake"
+    },
+    "lit=true": {
+      "model": "oredcakes:block/cyan_candle_netherite_cake_lit"
+    }
+  }
+}

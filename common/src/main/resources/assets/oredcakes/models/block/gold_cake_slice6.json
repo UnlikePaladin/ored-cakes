@@ -1,0 +1,10 @@
+{
+    "parent": "minecraft:block/cake_slice6",
+    "textures": {
+        "particle": "oredcakes:block/gold_cake_side",
+        "bottom": "oredcakes:block/gold_cake_bottom",
+        "top": "oredcakes:block/gold_cake_top",
+        "side": "oredcakes:block/gold_cake_side",
+        "inside": "oredcakes:block/gold_cake_inner"
+    }
+}

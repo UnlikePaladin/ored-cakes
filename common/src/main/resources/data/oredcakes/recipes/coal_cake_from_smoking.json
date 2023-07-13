@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "cookingtime": 50,
+  "experience": 0.4,
+  "ingredient": {
+    "item": "minecraft:cake"
+  },
+  "result": "oredcakes:coal_cake"
+}

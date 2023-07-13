@@ -1,0 +1,19 @@
+{
+  "block.oredcakes.netherite_cake": "Netherite Cake",
+  "block.oredcakes.redstone_cake": "Redstone Cake",
+  "block.oredcakes.gold_cake": "Gold Cake",
+  "block.oredcakes.lapis_cake": "Lapis Lazuli Cake",
+  "block.oredcakes.coal_cake": "Coal Cake",
+  "block.oredcakes.diamond_cake": "Diamond Cake",
+  "block.oredcakes.emerald_cake": "Emerald Cake",
+  "block.oredcakes.iron_cake": "Iron Cake",
+
+  "advancements.husbandry.coal_cake.title" : "It's Burnt!",
+  "advancements.husbandry.coal_cake.description" : "You burnt a cake and now it's turned into coal",
+  "advancements.husbandry.netherite_cake.title" : "An Expensive Meal",
+  "advancements.husbandry.netherite_cake.description" : "Use a Netherite ingot to craft a cake and then very seriously reevaluate your life choices",
+  "advancements.husbandry.diamond_cake.title" : "Ooh Shiny!",
+  "advancements.husbandry.diamond_cake.description" : "Use a Diamond to craft a cake, it's so shiny",
+  "advancements.husbandry.gold_cake.title" : "It's not Butter?",
+  "advancements.husbandry.gold_cake.description" : "This golden cake contains no butter"
+}
