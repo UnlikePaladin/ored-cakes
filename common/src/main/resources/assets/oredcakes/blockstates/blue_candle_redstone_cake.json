@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "oredcakes:block/blue_candle_redstone_cake"
+    },
+    "lit=true": {
+      "model": "oredcakes:block/blue_candle_redstone_cake_lit"
+    }
+  }
+}

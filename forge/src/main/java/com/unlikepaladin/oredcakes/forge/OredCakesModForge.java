@@ -2,14 +2,20 @@ package com.unlikepaladin.oredcakes.forge;
 
 import com.unlikepaladin.oredcakes.OredCakesMod;
 
+import com.unlikepaladin.oredcakes.blocks.AbstractOreCakeBlock;
+import com.unlikepaladin.oredcakes.blocks.CandleOreCakeBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.HashMap;
 
 import static com.unlikepaladin.oredcakes.OredCakesBlocks.*;
 import static com.unlikepaladin.oredcakes.OredCakesMod.*;
@@ -34,6 +40,12 @@ public class OredCakesModForge {
             blockRegistryEvent.getRegistry().register(IRON_CAKE.setRegistryName(MOD_ID, "iron_cake"));
             blockRegistryEvent.getRegistry().register(REDSTONE_CAKE.setRegistryName(MOD_ID, "redstone_cake"));
             blockRegistryEvent.getRegistry().register(COAL_CAKE.setRegistryName(MOD_ID, "coal_cake"));
+            for (Block candle : candles) {
+                for (AbstractOreCakeBlock oreCakeBlock : cakes) {
+                    CandleOreCakeBlock candleOreCakeBlock = new CandleOreCakeBlock(candle, oreCakeBlock, BlockBehaviour.Properties.copy(oreCakeBlock).lightLevel(createLightLevelFromLitBlockState(3)));
+                    blockRegistryEvent.getRegistry().register(candleOreCakeBlock.setRegistryName(ForgeRegistries.BLOCKS.getKey(candle).getPath()+"_"+ForgeRegistries.BLOCKS.getKey(oreCakeBlock).getPath()));
+                }
+            }
         }
 
         @SubscribeEvent

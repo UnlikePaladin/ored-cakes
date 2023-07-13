@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "oredcakes:block/yellow_candle_lapis_cake"
+    },
+    "lit=true": {
+      "model": "oredcakes:block/yellow_candle_lapis_cake_lit"
+    }
+  }
+}
