@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "addition": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "base": {
+    "item": "oredcakes:diamond_cake"
+  },
+  "result": {
+    "item": "oredcakes:netherite_cake"
+  }
+}

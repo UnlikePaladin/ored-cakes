@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "iron": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "oredcakes:netherite_cake"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.husbandry.netherite_cake.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "oredcakes:netherite_cake"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.husbandry.netherite_cake.title"
+    }
+  }
+}

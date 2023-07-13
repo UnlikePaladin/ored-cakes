@@ -1,0 +1,10 @@
+{
+    "parent": "minecraft:block/cake_slice2",
+    "textures": {
+        "particle": "oredcakes:block/coal_cake_side",
+        "bottom": "oredcakes:block/coal_cake_bottom",
+        "top": "oredcakes:block/coal_cake_top",
+        "side": "oredcakes:block/coal_cake_side",
+        "inside": "oredcakes:block/coal_cake_inner"
+    }
+}
