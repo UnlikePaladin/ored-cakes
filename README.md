@@ -1,5 +1,5 @@
 # Ored Cakes
-![ModIcon](https://github.com/UnlikePaladin/ored-cakes/blob/main/src/main/resources/assets/oredcakes/ored_cakes.png?raw=true)
+![ModIcon](https://github.com/UnlikePaladin/ored-cakes/blob/architectury-1.16.x/fabric/src/main/resources/assets/oredcakes/ored_cakes.png?raw=true)
 
 ## Installation
 
